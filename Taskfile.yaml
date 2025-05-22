@@ -1,0 +1,14 @@
+version: '3'
+tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  lab:
+    desc: Start lab environment with IPython and required imports
+    cmds:
+      - uv run ipython -i demo/lab_init.py
+    
+    

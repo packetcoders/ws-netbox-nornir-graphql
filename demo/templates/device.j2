@@ -1,0 +1,55 @@
+
+username admin privilege 15 secret {{ device_password }}
+
+no service interface inactive port-id allocation disabled
+
+service routing protocols model multi-agent
+
+hostname {{ host.name }}
+
+{% if custom_fields.domain_name -%}
+dns domain {{ custom_fields.domain_name }}
+{% endif %}
+
+aaa authorization exec default local
+aaa authentication login default local
+
+management ssh
+
+{% for interface in interfaces %}
+{%   if interface.ip_addresses %}
+interface {{ interface.name }}
+{%     for ip_address in interface.ip_addresses %}
+{%       if not interface.mgmt_only %}
+   no switchport
+   ip ospf network point-to-point
+   ip ospf area 0
+{%       endif %}
+   ip address {{ ip_address.address }}
+   no shutdown
+
+{%     endfor %}
+{%   endif %}
+{% endfor %}
+
+{%-if role.name == "spine" %}
+interface Loopback0
+   ip address 11.11.11.11/32
+{% endif %} 
+
+ip routing
+
+ip route 0.0.0.0/0 172.29.152.1
+
+router ospf 1
+  router-id {{ primary_ip4.address.split("/")[0] }}
+  network 10.0.0.0/8 area 0
+{% if role.name == "spine" %}
+  network 11.11.11.11/32 area 0
+{% endif %}
+
+management api http-commands
+  protocol https
+  no shutdown
+
+end

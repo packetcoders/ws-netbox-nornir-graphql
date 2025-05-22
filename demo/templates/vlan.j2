@@ -1,0 +1,6 @@
+! VLANs {{ host.name }}
+
+{% for vlan in vlans %}
+vlan {{ vlan }}
+ name VLAN-{{ vlan }}
+{% endfor %}
