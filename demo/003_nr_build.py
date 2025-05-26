@@ -24,7 +24,8 @@ J2_PATH_OUTPUT = Path(__file__).parent / "output"
 
 # Filter for hosts with a specific NetBox tenant name
 #nr = nr.filter(F(tenant__name="pod1"))
-nr = nr.filter(F(name=f"leaf{STUDENT_ID}"))
+#nr = nr.filter(F(name=f"leaf{STUDENT_ID}"))
+nr = nr.filter(F(role__name="spine"))
 
 # GraphQL query to collect device variables.
 GRAPHQL_QUERY = """

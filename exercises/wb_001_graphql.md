@@ -9,7 +9,7 @@ The objective of this workbook is to:
 
 
 ## Exercise 1 – Log into NetBox GraphiQL 
-1. Open your browser and navigate to the NetBox via the link provided in the lab details.
+1. Open your browser and navigate to the NetBox via the link and credentials emailed to you.
 2. Click on the GraphiQL icon at the bottom of the page.
 
 ![alt text](../assets/graphql-icon.png)
@@ -145,9 +145,7 @@ query {
 ## Exercise 5 - Use Variables in Your GraphQL Query
 Now that we can query GraphQL for a single device, and retrieve all of the information we need for generating a configuration. We will update our query to use a variables. 
 
-This will make our lives easier when we go to use this query within Python, and we need to pass the query the hostname of the device we are querying. 
-
-# create steps based on solution. provide detail in what they need to do.
+This will make our lives easier when we go to use this query within Python, and we need to pass the hostname of the device we are querying into our  
 
 1. Create a variable named `deviceName` with a value of `leaf1`.
 2. Update your GraphQL query to use the variable.
@@ -199,4 +197,8 @@ query DeviceQuery($deviceName: String) {
 
 </details>
 
+
+Great! Now that we have our query and variables built. We can now start to look at the other components we will need  ito integrate them with in order to automate our configureations, aka Jinja and Nornir! 
+
+Lets go!
 

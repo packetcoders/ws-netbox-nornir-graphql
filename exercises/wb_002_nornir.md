@@ -54,6 +54,8 @@ task lab
 print(nr.inventory.hosts)
 ```
 
+Within each of these objects, will be the various attributes from the Device object pulled from the NetBox Device model.
+
 3. Print the inventory data for a single host.
 
 ```python
@@ -62,10 +64,10 @@ print(nr.inventory.hosts["leaf1"])
 
 From the output you would of seen that the inventory plugin has retrieved the device information from NetBox and stored it in the Nornir inventory.
 
-Now we have inventory data, then next step is to filter the inventory to define "who" we want to run our tasks against.
+Now we have inventory data, the next step is to filter the inventory to define "who" we want to run our tasks against.
 
 ## Exercise 3 – Inventory: Filtering
-We will now work with Nornir filtering. There are 2 types of filtering basic and advanced. Lets diive straight into the advanced filtering.
+We will now work with Nornir filtering. There are 2 types of filtering basic and advanced. Lets dive straight into the advanced filtering.
 This will be achieved by using something called the "F Object".
 
 1. Run `task lab`, to start the ipython shell.
@@ -170,7 +172,7 @@ nornir_inspect(result)
 # ...
 ```
 
-Understandin this low level view of the result object is important as it will help us to navigate the result object when we want to extract data from it. For example place data into a DataFrame etc.
+Understanding this low level view of the result object is important as it will help us to navigate the result object when we want to extract data from it. For example place data into a DataFrame, or use the data for network testing.
 
 ## Exercise 6 – Tasks: Render Jinja2 Template with Nornir
 We will now leverge the template_file task from the Nornir Jinja2 plugin to render a Jinja2 template.
@@ -180,7 +182,10 @@ We will now leverge the template_file task from the Nornir Jinja2 plugin to rend
 task lab
 ```
 
-2. Render a Jinja2 template. Note the `template_file` plugin task is used to render the template, and also the inputs provided to the task. 
+2. We have created a basic Jinja template (`vlan.j2`), that will render a list of vlans. You can view the template in the `demo/templates` directory.
+
+3. Render a Jinja2 template. 
+Note: the `template_file` plugin task is used to render the template. Also note that we pass the variables to the plugin. These can be provided as kwargs. 
 
 ```python
 from nornir_jinja2.plugins.tasks import template_file
@@ -196,11 +201,16 @@ result = nr.run(
     template="vlan.j2", 
     name="Render VLAN Template", 
     vlans=vlans)
+
 print_result(result)
 ```
 
+4. You will now see the output from Nornir of the rendered output.
+
+The next step in this process is to write the rendered output to a file.
+
 ## Exercise 7 – Tasks: Write to File with Nornir
-Lets now use Nornir to write the rendered template to a file.
+Lets now use Nornir to write output to a file.
 
 1. Run `task lab`, to start the ipython shell.
 ```bash
@@ -211,34 +221,68 @@ task lab
 ```python
 from nornir_utils.plugins.tasks.files import write_file
 from nornir_utils.plugins.functions import print_result
+from nornir.core.task import Task
+import uuid
 
 nr = nr.filter(F(tenant__name="pod1"))
 
-vlans = [100, 200, 300]
-
-result = nr.run(
-    task=template_file, 
-    path="./demo/templates", 
-    template="vlan.j2", 
-    name="Render VLAN Template", 
-    vlans=vlans)
-print_result(result)
-
 result = nr.run(
     task=write_file,
-    content=result.result,
-    filename=f"./demo/output/vlan.txt",
+    content="Hello from AutoCon3!\n",
+    append=True,
+    filename="./demo/output/hello.txt"
 )
+
 print_result(result)
 ```
 
 3. View the file.
 ```bash
-cat ./demo/output/vlan.txt
+cat ./demo/output/hello.txt
 ```
 
-## Exercise 8 – Tasks: Query GraphQL with Nornir
-SO far we have used prebuilt tasks via plugins. Now we will create a custom task to use Nornir to query GraphQL.
+4. You will see a file has been created and some simple content added to a file. The same file has been appended to multiple times. Each entry from a host from the filter nr object.
+
+## Exercise 8 - Tasks: Create a Custom Task
+Lets now create a simple custom task. At this point we wont make this task do anything network related, but just get a fill for Nornir custom tasks.
+
+1. Run `task lab`, to start the ipython shell.
+```bash
+task lab
+```
+
+2. Create a custom task.
+```python
+from nornir.core.task import Task, Result
+from nornir_utils.plugins.functions import print_result
+
+def task_custom(task: Task, x: int, y: int) -> Result:
+    z = x + y
+
+    return Result(
+        host=task.host, 
+        result=f"Hello from {task.host}! The result is {z}"
+    )
+
+result = nr.run(task=task_custom, x=1, y=2)
+print_result(result)
+```
+
+3. You will see the result of the custom task for each host in the inventory.
+
+4. Re-run task 2 but change the inputs of x and y.
+```python
+result = nr.run(task=task_custom, x=2, y=2)
+print_result(result)
+```
+
+You will see the results change. The result is now 4.
+This is a simple example. But as we will see rather then performing a simple sum, in the real world we will perform network related tasks and pass the results between the tasks to perform different operations.
+
+
+## Exercise 9 – Tasks: Query GraphQL with Nornir
+Lets now step things up and use Nornir to query GraphQL.
+To do this we will create a custom task that will query GraphQL and return the data from the GraphQL query, for each of the hosts.
 
 1. Run `task lab`, to start the ipython shell.
 ```bash
@@ -255,7 +299,7 @@ import requests
 
 nr = nr.filter(F(tenant__name="pod1"))
 
-graphql_query = """
+GRAPHQL_QUERY = """
 query {
     device_list {
         name
@@ -300,9 +344,11 @@ result = nr.run(
 print_result(result)
 ```
 
+You will now see the results. i.e the data from GraphQL from NetBox for each of the hosts. 
 
-## Exercise 9 – Putting it all together
-Lets now put everything together and perform the following for your lab device.
+
+## Exercise 10 – Putting it all together
+Lets now put everything together and perform the following for your **lab device**.
 1. Nornir inventory filter
 2. Query GraphQL
 3. Render Jinja2 template
@@ -326,18 +372,25 @@ A custom task is a task that is written by the user, and is not provided by Norn
 
 <details>
 <summary>Answer</summary>
-The main task we are running with `nr.run` is `task_build_config`.
+The main task we are running with <code>nr.run</code> is <code>task_build_config</code>.
 </details>
 
 5. What sub tasks are being run within `task_build_config`?
 
 <details>
 <summary>Answer</summary>
-`task_build_config` is running a sub "custom" task `task_collect_graphql`, and then passing the data from the task to another plugin task `template_file`, finally writing the result to a file using the `write_file` plugin task.
+<code>task_build_config</code> is running a sub "custom" task <code>task_collect_graphql</code>, and then passing the data from the task to another plugin task <code>template_file</code>, finally writing the result to a file using the <code>write_file</code> plugin task.
 </details>
 
 6. Run the script, `demo/003_nr_build.py`, but clicking on the play button in the top right corner.
-7. You will now see the generated config generated in the `demo/output` directory.
+7. You will now see the generated network config generated in the `demo/output` directory.
+
+We have now learned how to use Nornir to query GraphQL, render a Jinja2 template, and write the output to a file
+
+But also we are at a fantastic point in this workshop. 
+You now have a rendered configuration. In the workshop today we will use this configuration to deploy this to a sudo production environment, but in the real world you could push this to a pre-prod environment for testing, or passing it to Batfish to build a modelled network.
+
+. 
 
 
 

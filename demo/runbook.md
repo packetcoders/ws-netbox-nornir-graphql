@@ -11,6 +11,35 @@ query {
 }
 ```
 
+```
+query {
+  device_list {
+    name
+    custom_fields
+    role {
+      name
+    }
+    device_type {
+        model
+        slug
+    }
+    platform {
+        name
+    }
+    interfaces {
+        name
+        mgmt_only
+        ip_addresses {
+            address
+        }
+    }
+    primary_ip4 {
+      address
+    }
+  }
+}
+```
+
 **Arguments and filters**
 
 ```
@@ -25,3 +54,41 @@ query {
 }
 ```
 
+**Variables**
+
+```
+query DeviceQuery($deviceName: String) {
+  device_list(
+    filters: { 
+      name: { exact: $deviceName }, 
+    }) {
+    name
+    custom_fields
+    role {
+      name
+    }
+    device_type {
+        model
+        slug
+    }
+    platform {
+        name
+    }
+    interfaces {
+        name
+        mgmt_only
+        ip_addresses {
+            address
+        }
+    }
+    primary_ip4 {
+      address
+    }
+  }
+}
+```
+```
+{
+  "deviceName": "leaf1",
+}
+```

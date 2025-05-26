@@ -19,7 +19,7 @@ nr.inventory.defaults.username = os.getenv("DEVICE_USERNAME")
 nr.inventory.defaults.password = os.getenv("DEVICE_PASSWORD")
 
 # Filter for hosts with a specific NetBox tenant name
-nr = nr.filter(F(tenant__name="pod1"))
+nr = nr.filter(F(role__name="spine"))
 
 def deploy_config(task: Task) -> Result:
     napalm_result = task.run(

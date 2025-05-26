@@ -10,16 +10,22 @@ The objective of this workbook is to:
 5. Understand how to use NAPALM with Nornir.
 
 ## Exercise 1 – Build a NAPALM Connection
-Within this exercise, you will learn how to build a NAPALM connection to a device using Nornir using the NAPALM context manager.
+Within this exercise, you will learn how to build a NAPALM connection to a device using the NAPALM context manager.
 
 1. Run `task lab`, to start the ipython shell.
 ```bash
 task lab
 ```
 
-2. Create a NAPALM connection to your device. Please use the IP for your student id from the LAB.md file.
+2. Create a NAPALM connection to your device. Please use the IP for your student id from the `LAB.md` file.
 ```python
 from napalm import get_network_driver
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+DEVICE_PASSWORD = os.getenv("DEVICE_PASSWORD")
 
 eos_driver = get_network_driver("eos")
 
@@ -47,6 +53,12 @@ task lab
 2. Use the NAPALM getters to retrieve data from your device.
 ```python
 from napalm import get_network_driver
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+DEVICE_PASSWORD = os.getenv("DEVICE_PASSWORD")
 
 eos_driver = get_network_driver("eos")
 
@@ -55,6 +67,13 @@ with eos_driver(MGMT_IP, "admin", DEVICE_PASSWORD) as napalm_connection:
 ```
 
 ## Exercise 3 – Device Configuration with NAPALM
+On top of Getters NAPALM also provides a way to configure a device.
+In other words config operation features both for merging and replacing the configuration upon a device.
+
+We will now:
+- create some configuration to create a loopback interface.
+- push it to your device and then,
+- retrieve the running configuration to ensure the configuration has been applied.
 
 1. Run `task lab`, to start the ipython shell.
 ```bash
@@ -64,6 +83,12 @@ task lab
 2. Use the NAPALM getters to retrieve data from your device.
 ```python
 from napalm import get_network_driver
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+DEVICE_PASSWORD = os.getenv("DEVICE_PASSWORD")
 
 eos_driver = get_network_driver("eos")
 
@@ -82,10 +107,20 @@ with eos_driver(MGMT_IP, "admin", DEVICE_PASSWORD) as napalm_connection:
     print(napalm_connection.get_config()["running"])
 ```
 
-After running the above code, you should see the new loopback interface in the running configuration.
+After running the above code, you should see the new loopback interface in the running configuration. Like so:
+
+```
+...
+interface Loopback1
+   description NAPALM Test
+   ip address 88.88.88.88/32
+...
+```
 
 ## Exercise 4 – NAPALM Nornir Integration
-Lets now use NAPALM within Nornir via the NAPALM plugin. But lets have some fun. Lets collect the environment data for all devices from pod1.
+Lets now use NAPALM within Nornir via the NAPALM plugin. But lets have some fun. Lets collect the environment data for all devices from all the pods.
+
+> [!TIP] If there are issues connecting. Due to the amount of students etc. Please use the commented filter to limit the devices to one of the pods.
 
 
 1. Run `task lab`, to start the ipython shell.
@@ -97,13 +132,13 @@ task lab
 ```python
 from nornir_napalm.plugins.tasks import napalm_get
 
-nr = nr.filter(F(tenant__name="pod1"))
+#nr = nr.filter(F(tenant__name="pod1"))
 
 result = nr.run(task=napalm_get, getters=["environment"])
 print_result(result)
 ```
 
-You will now see the environment data for all devices from pod1.
+You will now see the environment data for all devices. Great stuff!
 
 ## Exercise 5 – Putting it all together
 We now have all the pieces. We`ve already generated configuration using the data from NetBox, via GraphQL and Nornir. We will now deploy our configuration to our leaf. At the point we deploy OSPF will be enabled and the loopback address will be distributed via OSPF. 
@@ -116,9 +151,25 @@ Let`s go!
 
 1. Locate the `demo/004_nr_deploy.py` file.
 2. Open the file, and review the code.
-3. Run the script, `demo/004_nr_deploy.py`, but clicking on the play button in the top right corner.
-4. Lets now confirm the state of OSPF and see our routing table with Netmiko.
-5. Run
+3. Update the Nornir filter to limit the devices to your student id.
+
+```python
+# remove
+nr = nr.filter(F(tenant__name="pod1"))
+
+# add
+import os
+from dotenv import load_dotenv
+
+load_dotenv(override=True)
+
+STUDENT_ID = os.getenv("STUDENT_ID")
+nr = nr.filter(F(name=f"leaf{STUDENT_ID}"))
+```
+
+4. Run the script, `demo/004_nr_deploy.py`, but clicking on the play button in the top right corner.
+5. Lets now confirm the state of OSPF and see our routing table with Netmiko.
+6. Run
 ```bash
 task lab
 ```

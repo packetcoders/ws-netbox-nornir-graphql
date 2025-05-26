@@ -2,9 +2,6 @@
 
 This repo contains the materials for the workshop "Automating Config Generation /w NetBox, Nornir and GraphQL".
 
-> [!NOTE]
-> This repo will be populated prior to the workshop starting.
-
 ## Layout
 
 The repo contains:
