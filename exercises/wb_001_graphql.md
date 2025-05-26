@@ -9,7 +9,7 @@ The objective of this workbook is to:
 
 
 ## Exercise 1 – Log into NetBox GraphiQL 
-1. Open your browser and navigate to the NetBox via the link and credentials emailed to you.
+1. Open your browser and navigate to the NetBox via the link and credentials provided to you.
 2. Click on the GraphiQL icon at the bottom of the page.
 
 ![alt text](../assets/graphql-icon.png)
