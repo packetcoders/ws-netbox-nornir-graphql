@@ -214,7 +214,7 @@ Source Codes:
 ```
 
 
-## CONGRAULATIONS
+## CONGRATULATIONS
 
 Thank for attending!
 
