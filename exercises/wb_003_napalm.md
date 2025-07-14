@@ -43,7 +43,7 @@ You should see `True` as output, validating that the connection is alive.
 
 
 ## Exercise 2 – Work with NAPALM Getters
-NAPALM providers various getters to retrieve data from a device in a structured. Lets now collect the statistics of the interfaces from your device.
+NAPALM provides various getters to retrieve data from a device in a structured. Lets now collect the statistics of the interfaces from your device.
 
 1. Run `task lab`, to start the ipython shell.
 ```bash
@@ -214,7 +214,7 @@ Source Codes:
 ```
 
 
-## CONGRAULATIONS
+## CONGRATULATIONS
 
 Thank for attending!
 

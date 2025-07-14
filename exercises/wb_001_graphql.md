@@ -17,7 +17,7 @@ The objective of this workbook is to:
 ## Exercise 2 - Build and Execute a GraphQL Query
 Lets first build our first GraphQL query to retrieve the name and ID of all devices with NetBox.
 
-1. Copy the the query below into the GraphiQL editor and click the play button to execute.
+1. Copy the query below into the GraphiQL editor and click the play button to execute.
 
 ```graphql
 query {
